@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## TezosX EVM
 
-## Getting Started
+Single-page Next.js app for sending a fixed USDC airdrop to any valid EVM address entered in the UI.
 
-First, run the development server:
+The browser only submits the recipient address. The actual transaction is created and broadcast on the server using private keys stored in environment variables.
+
+## Setup
+
+1. Copy `.env.example` to `.env.local`.
+2. Fill in your funded private keys in `AIRDROP_PRIVATE_KEYS`.
+3. Set `AIRDROP_TOKEN_ADDRESS` to your USDC token contract.
+4. Adjust `AIRDROP_AMOUNT` if you want a different fixed airdrop amount.
+5. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+EVM_RPC=https://demo.txpark.nomadic-labs.com/rpc
+AIRDROP_PRIVATE_KEYS=0xabc...,0xdef...
+AIRDROP_TOKEN_ADDRESS=0x...
+AIRDROP_TOKEN_SYMBOL=USDC
+AIRDROP_TOKEN_DECIMALS=6
+AIRDROP_AMOUNT=100
+AIRDROP_GAS_RESERVE=0.001
+EXPLORER_TX_URL_BASE=
 
-## Learn More
+NEXT_PUBLIC_NETWORK_NAME=TezosX EVM
+NEXT_PUBLIC_NETWORK_SUBTITLE=Tezos X Testnet Dashboard
+NEXT_PUBLIC_EVM_RPC=https://demo.txpark.nomadic-labs.com/rpc
+NEXT_PUBLIC_AIRDROP_AMOUNT=100
+NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL=USDC
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `AIRDROP_PRIVATE_KEYS` can contain multiple comma-separated or newline-separated private keys.
+- The API route chooses the first configured wallet with enough USDC balance and enough native balance to cover gas.
+- The default setup assumes USDC uses `6` decimals. Change `AIRDROP_TOKEN_DECIMALS` if your token differs.
+- Add `EXPLORER_TX_URL_BASE` if you want the success state to include a transaction link.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API
 
-## Deploy on Vercel
+`POST /api/airdrop`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Request body:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+  "walletAddress": "0x..."
+}
+```
+
+Successful response includes the sender wallet used and the transaction hash.
+
+## Security
+
+Do not expose your private keys through `NEXT_PUBLIC_*` variables. Only keep them in server-only env vars such as `AIRDROP_PRIVATE_KEYS`.
