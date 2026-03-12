@@ -3,6 +3,8 @@
 import { FormEvent, useState } from "react";
 import styles from "./page.module.css";
 
+type AirdropAsset = "usdc" | "xtz";
+
 type ClaimResult = {
   ok: boolean;
   message: string;
@@ -16,13 +18,28 @@ const networkSubtitle =
   process.env.NEXT_PUBLIC_NETWORK_SUBTITLE ?? "Tezos X Testnet Dashboard";
 const rpcEndpoint =
   process.env.NEXT_PUBLIC_EVM_RPC ?? "https://demo.txpark.nomadic-labs.com/rpc";
-const defaultAmount = process.env.NEXT_PUBLIC_AIRDROP_AMOUNT ?? "10";
-const tokenSymbol = process.env.NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL ?? "USDC";
+const assetOptions: Record<
+  AirdropAsset,
+  { label: string; amount: string; description: string }
+> = {
+  usdc: {
+    label: process.env.NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL ?? "USDC",
+    amount: process.env.NEXT_PUBLIC_AIRDROP_AMOUNT ?? "10",
+    description: "Send the fixed testnet USDC faucet amount to the recipient wallet.",
+  },
+  xtz: {
+    label: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL ?? "XTZ",
+    amount: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_AMOUNT ?? "5",
+    description: "Send the fixed native-token airdrop amount to the recipient wallet.",
+  },
+};
 
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState<AirdropAsset>("usdc");
   const [result, setResult] = useState<ClaimResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const activeAsset = assetOptions[selectedAsset];
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +52,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ walletAddress }),
+        body: JSON.stringify({ walletAddress, asset: selectedAsset }),
       });
 
       const data = (await response.json()) as ClaimResult;
@@ -74,14 +91,57 @@ export default function Home() {
               <strong className={styles.mono}>{rpcEndpoint}</strong>
             </div>
             <div className={styles.detailRow}>
+              <span>Selected Asset</span>
+              <strong>
+                {activeAsset.label}
+              </strong>
+            </div>
+            <div className={styles.detailRow}>
               <span>Default Airdrop</span>
               <strong>
-                {defaultAmount} {tokenSymbol}
+                {activeAsset.amount} {activeAsset.label}
               </strong>
             </div>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.tabList} role="tablist" aria-label="Select token to airdrop">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={selectedAsset === "usdc"}
+                className={`${styles.tab} ${
+                  selectedAsset === "usdc" ? styles.tabActive : ""
+                }`}
+                onClick={() => {
+                  setSelectedAsset("usdc");
+                  setResult(null);
+                }}
+                disabled={isSubmitting}
+              >
+                USDC Airdrop
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={selectedAsset === "xtz"}
+                className={`${styles.tab} ${
+                  selectedAsset === "xtz" ? styles.tabActive : ""
+                }`}
+                onClick={() => {
+                  setSelectedAsset("xtz");
+                  setResult(null);
+                }}
+                disabled={isSubmitting}
+              >
+                XTZ Airdrop
+              </button>
+            </div>
+
+            <p className={styles.helperText}>
+              Selected: {activeAsset.amount} {activeAsset.label}. {activeAsset.description}
+            </p>
+
             <label className={styles.label} htmlFor="walletAddress">
               Recipient Wallet
             </label>
@@ -100,7 +160,7 @@ export default function Home() {
             />
 
             <button className={styles.button} type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Sending..." : "Send Airdrop"}
+              {isSubmitting ? "Sending..." : `Send ${activeAsset.label} Airdrop`}
             </button>
           </form>
 
@@ -123,8 +183,8 @@ export default function Home() {
               </>
             ) : (
               <p>
-                Enter a wallet address to send an Airdrop of {defaultAmount} {tokenSymbol} on{" "}
-                {networkName}.
+                Enter a wallet address to send an Airdrop of {activeAsset.amount}{" "}
+                {activeAsset.label} on {networkName}.
               </p>
             )}
           </div>
