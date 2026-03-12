@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 type AirdropAsset = "usdc" | "xtz";
+type ThemeMode = "light" | "dark";
 
 type ClaimResult = {
   ok: boolean;
@@ -25,21 +26,39 @@ const assetOptions: Record<
   usdc: {
     label: process.env.NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL ?? "USDC",
     amount: process.env.NEXT_PUBLIC_AIRDROP_AMOUNT ?? "10",
-    description: "Send the fixed testnet USDC faucet amount to the recipient wallet.",
+    description: "Send the fixed testnet USDC faucet amount to your wallet.",
   },
   xtz: {
     label: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL ?? "XTZ",
     amount: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_AMOUNT ?? "5",
-    description: "Send the fixed native-token airdrop amount to the recipient wallet.",
+    description: "Send the fixed native-token airdrop amount to your wallet.",
   },
 };
 
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
   const [selectedAsset, setSelectedAsset] = useState<AirdropAsset>("usdc");
+  const [theme, setTheme] = useState<ThemeMode>("light");
   const [result, setResult] = useState<ClaimResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const activeAsset = assetOptions[selectedAsset];
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("tezosx-evm-theme");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setTheme(savedTheme);
+      return;
+    }
+
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setTheme(prefersDark ? "dark" : "light");
+  }, []);
+
+  function toggleTheme() {
+    const nextTheme: ThemeMode = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    window.localStorage.setItem("tezosx-evm-theme", nextTheme);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,9 +87,14 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${theme === "dark" ? styles.darkTheme : ""}`}>
       <main className={styles.panel}>
         <header className={styles.hero}>
+          <div className={styles.heroTopRow}>
+            <button className={styles.themeToggle} type="button" onClick={toggleTheme}>
+              {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            </button>
+          </div>
           <h1>{networkName}</h1>
           <p>{networkSubtitle}</p>
         </header>
@@ -160,7 +184,11 @@ export default function Home() {
             />
 
             <button className={styles.button} type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Sending..." : `Send ${activeAsset.label} Airdrop`}
+              {isSubmitting
+                ? "Sending..."
+                : selectedAsset === "xtz"
+                  ? "Send XTZ to your wallet"
+                  : "Send USDC to your wallet"}
             </button>
           </form>
 
