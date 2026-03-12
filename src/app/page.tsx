@@ -187,8 +187,8 @@ export default function Home() {
               {isSubmitting
                 ? "Sending..."
                 : selectedAsset === "xtz"
-                  ? "Send XTZ to your wallet"
-                  : "Send USDC to your wallet"}
+                  ? `Send ${activeAsset.amount} XTZ to your wallet`
+                  : `Send ${activeAsset.amount} USDC to your wallet`}
             </button>
           </form>
 
