@@ -20,19 +20,23 @@ const networkSubtitle =
   process.env.NEXT_PUBLIC_NETWORK_SUBTITLE ?? "Tezos X Testnet Faucet";
 const rpcEndpoint =
   process.env.NEXT_PUBLIC_EVM_RPC ?? "https://demo.txpark.nomadic-labs.com/rpc";
+const usdcSymbol = process.env.NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL ?? "USDC";
+const usdcAmount = process.env.NEXT_PUBLIC_AIRDROP_AMOUNT ?? "10";
+const nativeSymbol = process.env.NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL ?? "XTZ";
+const nativeAmount = process.env.NEXT_PUBLIC_NATIVE_AIRDROP_AMOUNT ?? "5";
 const assetOptions: Record<
   AirdropAsset,
   { label: string; amount: string; description: string }
 > = {
   usdc: {
-    label: process.env.NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL ?? "USDC",
-    amount: process.env.NEXT_PUBLIC_AIRDROP_AMOUNT ?? "10",
-    description: "Send the fixed testnet USDC faucet amount to your wallet.",
+    label: usdcSymbol,
+    amount: usdcAmount,
+    description: `Sends ${usdcAmount} ${usdcSymbol} from the faucet to your wallet.`,
   },
   xtz: {
-    label: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL ?? "XTZ",
-    amount: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_AMOUNT ?? "5",
-    description: "Send the fixed native-token faucet amount to your wallet.",
+    label: nativeSymbol,
+    amount: nativeAmount,
+    description: `Sends ${nativeAmount} ${nativeSymbol} from the faucet to your wallet.`,
   },
 };
 
