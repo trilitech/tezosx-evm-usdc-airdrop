@@ -1,6 +1,6 @@
 ## TezosX EVM
 
-Single-page Next.js app for sending a fixed USDC or XTZ airdrop to any valid EVM address entered in the UI.
+Single-page Next.js **faucet** app: sends a fixed USDC or XTZ amount to any valid EVM address entered in the UI.
 
 The browser only submits the recipient address. The actual transaction is created and broadcast on the server using private keys stored in environment variables.
 
@@ -15,7 +15,7 @@ npm install
 2. Copy `.env.example` to `.env.local` or `.env`.
 3. Fill in your funded private keys in `AIRDROP_PRIVATE_KEYS`.
 4. Set `AIRDROP_TOKEN_ADDRESS` to your USDC token contract.
-5. Adjust `AIRDROP_AMOUNT` and `NATIVE_AIRDROP_AMOUNT` if you want different fixed airdrop amounts.
+5. Adjust `AIRDROP_AMOUNT` and `NATIVE_AIRDROP_AMOUNT` if you want different fixed payout amounts.
 6. Start the app:
 
 ```bash
@@ -41,7 +41,7 @@ npm run build
 npm run start
 ```
 
-The app will serve the faucet UI on `http://localhost:3000` by default.
+The app serves the faucet UI on `http://localhost:3000` by default.
 
 ## Environment Variables
 
@@ -58,7 +58,7 @@ AIRDROP_GAS_RESERVE=0.001
 EXPLORER_TX_URL_BASE=
 
 NEXT_PUBLIC_NETWORK_NAME=TezosX EVM
-NEXT_PUBLIC_NETWORK_SUBTITLE=Tezos X Testnet Airdrop
+NEXT_PUBLIC_NETWORK_SUBTITLE=Tezos X Testnet Faucet
 NEXT_PUBLIC_EVM_RPC=https://demo.txpark.nomadic-labs.com/rpc
 NEXT_PUBLIC_AIRDROP_AMOUNT=10
 NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL=USDC
@@ -70,7 +70,7 @@ NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL=XTZ
 
 - `AIRDROP_PRIVATE_KEYS` can contain multiple comma-separated or newline-separated private keys.
 - The UI exposes a clear asset selector so users can choose between `USDC` and `XTZ` while using one shared wallet input.
-- The API route chooses the first configured wallet with enough balance to cover the selected airdrop and native gas.
+- The API route chooses the first configured wallet with enough balance to cover the selected payout and native gas.
 - The default setup assumes USDC uses `6` decimals. Change `AIRDROP_TOKEN_DECIMALS` if your token differs.
 - Add `EXPLORER_TX_URL_BASE` if you want the success state to include a transaction link.
 

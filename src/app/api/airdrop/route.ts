@@ -147,7 +147,6 @@ export async function POST(request: Request) {
       symbol = tokenSymbol;
     }
 
-
     return NextResponse.json({
       ok: true,
       message: `${amount} ${symbol} sent successfully to ${walletAddress}.`,

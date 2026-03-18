@@ -31,7 +31,7 @@ const assetOptions: Record<
   xtz: {
     label: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL ?? "XTZ",
     amount: process.env.NEXT_PUBLIC_NATIVE_AIRDROP_AMOUNT ?? "5",
-    description: "Send the fixed native-token airdrop amount to your wallet.",
+    description: "Send the fixed native-token faucet amount to your wallet.",
   },
 };
 
@@ -101,7 +101,7 @@ export default function Home() {
 
         <section className={styles.details}>
           <div className={styles.sectionHeader}>
-            <h2>Airdrop Console</h2>
+            <h2>Faucet</h2>
             <div className={styles.rule} />
           </div>
 
@@ -121,7 +121,7 @@ export default function Home() {
               </strong>
             </div>
             <div className={styles.detailRow}>
-              <span>Default Airdrop</span>
+              <span>Default faucet</span>
               <strong>
                 {activeAsset.amount} {activeAsset.label}
               </strong>
@@ -129,7 +129,7 @@ export default function Home() {
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.tabList} role="tablist" aria-label="Select token to airdrop">
+            <div className={styles.tabList} role="tablist" aria-label="Select token for faucet">
               <button
                 type="button"
                 role="tab"
@@ -143,7 +143,7 @@ export default function Home() {
                 }}
                 disabled={isSubmitting}
               >
-                USDC Airdrop
+                USDC faucet
               </button>
               <button
                 type="button"
@@ -158,7 +158,7 @@ export default function Home() {
                 }}
                 disabled={isSubmitting}
               >
-                XTZ Airdrop
+                XTZ faucet
               </button>
             </div>
 
@@ -211,8 +211,8 @@ export default function Home() {
               </>
             ) : (
               <p>
-                Enter a wallet address to send an Airdrop of {activeAsset.amount}{" "}
-                {activeAsset.label} on {networkName}.
+                Enter a wallet address to receive {activeAsset.amount}{" "}
+                {activeAsset.label} from the {networkName} faucet.
               </p>
             )}
           </div>

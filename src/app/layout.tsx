@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "TezosX EVM",
-  description: "Single-page dashboard for sending native-token testnet airdrops.",
+  description: "Testnet faucet — fixed USDC or native XTZ payouts on TezosX EVM.",
 };
 
 export default function RootLayout({
