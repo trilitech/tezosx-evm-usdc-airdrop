@@ -15,7 +15,7 @@ type ClaimResult = {
 };
 
 const networkName =
-  process.env.NEXT_PUBLIC_NETWORK_NAME ?? "Tezos X EVM & Tezlink Faucet";
+  process.env.NEXT_PUBLIC_NETWORK_NAME ?? "Tezos X EVM Faucet";
 const networkSubtitle =
   process.env.NEXT_PUBLIC_NETWORK_SUBTITLE ?? "Tezos X Testnet Faucet";
 const rpcEndpoint =
