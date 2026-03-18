@@ -1,4 +1,4 @@
-## TezosX EVM
+## Tezos X EVM & Tezlink Faucet
 
 Single-page Next.js **faucet** app: sends a fixed USDC or XTZ amount to any valid EVM address entered in the UI.
 
@@ -57,8 +57,8 @@ NATIVE_AIRDROP_AMOUNT=5
 AIRDROP_GAS_RESERVE=0.001
 EXPLORER_TX_URL_BASE=
 
-NEXT_PUBLIC_NETWORK_NAME=TezosX EVM
-NEXT_PUBLIC_NETWORK_SUBTITLE=Tezos X Testnet Faucet
+NEXT_PUBLIC_NETWORK_NAME="Tezos X EVM & Tezlink Faucet"
+NEXT_PUBLIC_NETWORK_SUBTITLE="Tezos X Testnet Faucet"
 NEXT_PUBLIC_EVM_RPC=https://demo.txpark.nomadic-labs.com/rpc
 NEXT_PUBLIC_AIRDROP_AMOUNT=10
 NEXT_PUBLIC_AIRDROP_TOKEN_SYMBOL=USDC

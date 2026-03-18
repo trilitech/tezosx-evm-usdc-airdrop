@@ -14,9 +14,10 @@ type ClaimResult = {
   explorerUrl?: string | null;
 };
 
-const networkName = process.env.NEXT_PUBLIC_NETWORK_NAME ?? "TezosX EVM";
+const networkName =
+  process.env.NEXT_PUBLIC_NETWORK_NAME ?? "Tezos X EVM & Tezlink Faucet";
 const networkSubtitle =
-  process.env.NEXT_PUBLIC_NETWORK_SUBTITLE ?? "Tezos X Testnet Dashboard";
+  process.env.NEXT_PUBLIC_NETWORK_SUBTITLE ?? "Tezos X Testnet Faucet";
 const rpcEndpoint =
   process.env.NEXT_PUBLIC_EVM_RPC ?? "https://demo.txpark.nomadic-labs.com/rpc";
 const assetOptions: Record<

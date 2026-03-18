@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TezosX EVM",
-  description: "Testnet faucet — fixed USDC or native XTZ payouts on TezosX EVM.",
+  title: "Tezos X EVM & Tezlink Faucet",
+  description:
+    "Tezos X Testnet Faucet — fixed USDC or native XTZ payouts on Tezos X EVM.",
 };
 
 export default function RootLayout({
