@@ -15,6 +15,17 @@ const erc20Abi = [
   "function transfer(address to, uint256 value) returns (bool)",
 ];
 type AirdropAsset = "usdc" | "xtz";
+type TransferRequest = {
+  asset: AirdropAsset;
+  amount: string;
+};
+
+type AirdropRequestBody = {
+  walletAddress?: string;
+  asset?: AirdropAsset;
+  xtz?: boolean;
+  usdc?: boolean;
+};
 
 function getPrivateKeys() {
   const source = process.env.AIRDROP_PRIVATE_KEYS ?? process.env.PRIVATE_KEYS ?? "";
@@ -95,14 +106,35 @@ async function getAvailableNativeWallet(
   );
 }
 
+function getTransferRequests(body: AirdropRequestBody): TransferRequest[] {
+  const transfers: TransferRequest[] = [];
+
+  if (body.usdc) {
+    transfers.push({ asset: "usdc", amount: tokenAmount });
+  }
+
+  if (body.xtz) {
+    transfers.push({ asset: "xtz", amount: nativeAmount });
+  }
+
+  if (transfers.length > 0) {
+    return transfers;
+  }
+
+  const asset: AirdropAsset = body.asset === "xtz" ? "xtz" : "usdc";
+
+  return [
+    {
+      asset,
+      amount: asset === "xtz" ? nativeAmount : tokenAmount,
+    },
+  ];
+}
+
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
-      walletAddress?: string;
-      asset?: AirdropAsset;
-    };
+    const body = (await request.json()) as AirdropRequestBody;
     const walletAddress = body.walletAddress?.trim();
-    const asset: AirdropAsset = body.asset === "xtz" ? "xtz" : "usdc";
 
     if (!walletAddress) {
       return NextResponse.json(
@@ -119,40 +151,59 @@ export async function POST(request: Request) {
     }
 
     const provider = getProvider();
-    let txHash: string;
-    let amount: string;
-    let symbol: string;
+    const transfers = getTransferRequests(body);
+    const results: Array<{
+      asset: AirdropAsset;
+      amount: string;
+      symbol: string;
+      txHash: string;
+      explorerUrl: string | null;
+    }> = [];
 
-    if (asset === "xtz") {
-      const amountWei = ethers.parseEther(nativeAmount);
-      const wallet = await getAvailableNativeWallet(provider, amountWei);
-      const tx = await wallet.sendTransaction({
-        to: walletAddress,
-        value: amountWei,
-      });
+    for (const transferRequest of transfers) {
+      if (transferRequest.asset === "xtz") {
+        const amountWei = ethers.parseEther(transferRequest.amount);
+        const wallet = await getAvailableNativeWallet(provider, amountWei);
+        const tx = await wallet.sendTransaction({
+          to: walletAddress,
+          value: amountWei,
+        });
 
-      await tx.wait();
-      txHash = tx.hash;
-      amount = nativeAmount;
-      symbol = nativeSymbol;
-    } else {
-      const amountUnits = ethers.parseUnits(tokenAmount, tokenDecimals);
+        await tx.wait();
+        results.push({
+          asset: "xtz",
+          amount: transferRequest.amount,
+          symbol: nativeSymbol,
+          txHash: tx.hash,
+          explorerUrl: explorerBaseUrl ? `${explorerBaseUrl}${tx.hash}` : null,
+        });
+        continue;
+      }
+
+      const amountUnits = ethers.parseUnits(transferRequest.amount, tokenDecimals);
       const wallet = await getAvailableTokenWallet(provider, amountUnits);
       const token = getTokenContract(wallet);
       const tx = await token.transfer(walletAddress, amountUnits);
 
       await tx.wait();
-      txHash = tx.hash;
-      amount = tokenAmount;
-      symbol = tokenSymbol;
+      results.push({
+        asset: "usdc",
+        amount: transferRequest.amount,
+        symbol: tokenSymbol,
+        txHash: tx.hash,
+        explorerUrl: explorerBaseUrl ? `${explorerBaseUrl}${tx.hash}` : null,
+      });
     }
+
+    const summary = results.map((result) => `${result.amount} ${result.symbol}`).join(" and ");
 
     return NextResponse.json({
       ok: true,
-      message: `${amount} ${symbol} sent successfully to ${walletAddress}.`,
-      txHash,
-      amount,
-      explorerUrl: explorerBaseUrl ? `${explorerBaseUrl}${txHash}` : null,
+      message: `${summary} sent successfully to ${walletAddress}.`,
+      txHash: results[0]?.txHash,
+      amount: results[0]?.amount,
+      explorerUrl: results[0]?.explorerUrl ?? null,
+      transfers: results,
     });
   } catch (error) {
     const message =

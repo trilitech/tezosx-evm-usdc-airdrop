@@ -78,7 +78,7 @@ NEXT_PUBLIC_NATIVE_AIRDROP_SYMBOL=XTZ
 
 `POST /api/airdrop`
 
-Request body:
+Legacy single-asset request:
 
 ```json
 {
@@ -87,7 +87,23 @@ Request body:
 }
 ```
 
-Successful response includes the transaction hash and optional explorer link.
+Multi-asset request:
+
+```json
+{
+  "walletAddress": "0x...",
+  "xtz": true,
+  "usdc": true
+}
+```
+
+Notes:
+
+- Pass `xtz: true` to send the default native XTZ amount from `NATIVE_AIRDROP_AMOUNT`.
+- Pass `usdc: true` to send the default USDC amount from `AIRDROP_AMOUNT`.
+- Pass both flags as `true` to airdrop both assets in one API call.
+- If neither flag is provided, the route falls back to the existing fixed-amount `asset` behavior.
+- Successful responses now include a `transfers` array with one entry per broadcast transaction, plus the legacy top-level `txHash`, `amount`, and `explorerUrl` fields for compatibility.
 
 ## Security
 
