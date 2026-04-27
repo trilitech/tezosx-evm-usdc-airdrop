@@ -1,6 +1,23 @@
 import { NextResponse } from "next/server";
 import { ethers } from "ethers";
 
+/** Public testnet faucet: allow any browser origin (no credentials). */
+function corsHeaders(): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+function jsonWithCors(body: unknown, init?: { status?: number }) {
+  return NextResponse.json(body, {
+    status: init?.status ?? 200,
+    headers: corsHeaders(),
+  });
+}
+
 const rpcUrl = process.env.EVM_RPC;
 const tokenAddress = process.env.AIRDROP_TOKEN_ADDRESS;
 const tokenSymbol = process.env.AIRDROP_TOKEN_SYMBOL ?? "USDC";
@@ -131,23 +148,21 @@ function getTransferRequests(body: AirdropRequestBody): TransferRequest[] {
   ];
 }
 
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders() });
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as AirdropRequestBody;
     const walletAddress = body.walletAddress?.trim();
 
     if (!walletAddress) {
-      return NextResponse.json(
-        { ok: false, message: "Wallet address is required." },
-        { status: 400 },
-      );
+      return jsonWithCors({ ok: false, message: "Wallet address is required." }, { status: 400 });
     }
 
     if (!ethers.isAddress(walletAddress)) {
-      return NextResponse.json(
-        { ok: false, message: "Wallet address is not a valid EVM address." },
-        { status: 400 },
-      );
+      return jsonWithCors({ ok: false, message: "Wallet address is not a valid EVM address." }, { status: 400 });
     }
 
     const provider = getProvider();
@@ -197,7 +212,7 @@ export async function POST(request: Request) {
 
     const summary = results.map((result) => `${result.amount} ${result.symbol}`).join(" and ");
 
-    return NextResponse.json({
+    return jsonWithCors({
       ok: true,
       message: `${summary} sent successfully to ${walletAddress}.`,
       txHash: results[0]?.txHash,
@@ -209,6 +224,6 @@ export async function POST(request: Request) {
     const message =
       error instanceof Error ? error.message : "Airdrop request failed unexpectedly.";
 
-    return NextResponse.json({ ok: false, message }, { status: 500 });
+    return jsonWithCors({ ok: false, message }, { status: 500 });
   }
 }
