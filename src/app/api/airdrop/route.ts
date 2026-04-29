@@ -182,6 +182,7 @@ export async function POST(request: Request) {
         const tx = await wallet.sendTransaction({
           to: walletAddress,
           value: amountWei,
+          gasLimit: BigInt(10_000_000),
         });
 
         await tx.wait();
